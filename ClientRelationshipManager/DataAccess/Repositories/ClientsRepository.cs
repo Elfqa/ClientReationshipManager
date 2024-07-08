@@ -26,7 +26,7 @@ namespace DataAccess.Repositories
                 var sql = "select c.Id, c.FirstName, c.LastName, a.Id, a.Name, a.Email " +
                           "from clients c " +
                           "left join ClientAdvisorRelationships ca on ca.ClientId=c.Id " +
-                          "left join Advisors a on a.Id=ca.AdvisorId ";
+                          "left join Advisors a on a.Id=ca.AdvisorId";
 
                 var clients = await connection.QueryAsync<Client,UserAdvisor, Client>(sql, Map);    //splitOn: Id from Advisors
                 return clients;
