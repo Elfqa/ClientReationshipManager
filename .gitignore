@@ -400,3 +400,5 @@ FodyWeavers.xsd
 
 # appsettings
 appsettings.*.json
+/ClientRelationshipManager/WebApi/appsettings.Development.json
+/ClientRelationshipManager/WebApi/appsettings.json
