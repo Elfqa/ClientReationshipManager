@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Application.Services;
 using BusinessLogic.Models;
 using DataAccess.DAL;
 using DataAccess.Repositories;
@@ -77,7 +78,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
-
+//builder.Services.AddAuthorization();
 
 
 builder.Services.AddControllers();
@@ -86,6 +87,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped<IRepository<Contact>, ContactsRepository>();
 builder.Services.AddScoped<IRepository<Client>, ClientsRepository>();
+builder.Services.AddScoped<IContactsService, ContactsService>();
 
 builder.Services.AddScoped<UserAccountRepository>();
 

@@ -59,10 +59,6 @@ namespace DataAccess.Repositories
             }
         }
 
-
-
-
-        //--------------------------
         public async Task<int> AddAsync(Contact entity)
         {
             var sql = "INSERT INTO Contacts (Description, CreationDate, LastUpdate, ScheduledDate, StartDate, EndDate, Status, AdvisorId, ClientId) " +
@@ -80,19 +76,11 @@ namespace DataAccess.Repositories
                 }
                 catch (Exception)                  
                 {
-                    throw new Exception("Błąd dodania nowego kontaktu");
+                    throw new Exception("Błąd dodania nowego kontaktu. Klient lub doradca nie istnieje");
                 }
 
             }
         }
-
-        // public string Description { get; set; }
-
-        // public DateTime LastUpdate { get; set; }
-        // public DateTime? ScheduledDate { get; set; }
-        // public DateTime? StartDate { get; set; }
-        // public DateTime? EndDate { get; set; }
-        // public ContactStatus Status { get; set; }
 
 
         public async Task<bool> UpdateAsync(Contact entity)
@@ -101,16 +89,11 @@ namespace DataAccess.Repositories
 
             var sql = new StringBuilder("UPDATE Contacts SET LastUpdate = @LastUpdate, Status = @Status ");
 
-            //var parameters = new DynamicParameters();
-            // parameters.Add("@Id", entity.Id);;
-
-
+            //Description,ScheduledDate,StartDate,EndDate will not be edited if they are passed empty from the model
             if (!string.IsNullOrWhiteSpace(entity.Description))
             {
                 sql.Append(", Description = @Description ");
-                //parameters.Add("@Description", entity.Description);
             }
-
             if (entity.ScheduledDate != null)
             {
                 sql.Append(", ScheduledDate = @ScheduledDate ");
@@ -126,29 +109,13 @@ namespace DataAccess.Repositories
 
             sql.Append("WHERE Id = @Id");
 
-            
+            //I put the entire entity object into the parameters, even if it has some empty properties, because it is secured in the SQL UPDATE clause
             using (var connection = _context.CreateConnection())
             {
-                var affectedRows = await connection.ExecuteAsync(sql.ToString(), entity);//do parametrów podstawiamy caly obiekt entity nawet jesli ma puste niektore wlasciwosci
+                var affectedRows = await connection.ExecuteAsync(sql.ToString(), entity);
                 return affectedRows > 0;
             }
         }
-
-
-        //public async Task<bool> UpdateAsync(Contact entity)
-        //{
-        //    var sql = "UPDATE Contacts SET Description = @Description, LastUpdate = @LastUpdate, " +
-        //              "StartDate = @StartDate, EndDate = @EndDate, Status = @Status " +
-        //              "WHERE Id = @Id";
-
-        //    using (var connection = _context.CreateConnection())
-        //    {
-        //        var affectedRows = await connection.ExecuteAsync(sql, entity);
-        //        return affectedRows > 0;
-        //    }
-        //}
-
-
 
         public async Task<bool> DeleteAsync(int id)
         {
