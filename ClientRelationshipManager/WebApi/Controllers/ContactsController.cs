@@ -57,9 +57,15 @@ namespace WebApi.Controllers
 
             var createdContactId = await _contactsService.ScheduleContact(contactDto);
             
-            if (createdContactId == null)
+            if (createdContactId == null )
             {
-                _logger.LogError($"Błąd dodania nowego kontaktu");
+                _logger.LogError("Błąd dodania nowego kontaktu. Niepoprawna data");
+                return BadRequest();
+                
+            }
+            if (createdContactId == 0)
+            {
+                _logger.LogError("Błąd dodania nowego kontaktu. Doradca lub klient nie istnieje");
                 return BadRequest();
 
             }

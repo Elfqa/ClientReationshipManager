@@ -81,6 +81,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 //builder.Services.AddAuthorization();
 
 
+
+//dodajemy dla komunikacji api z javascriptem
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder =>
+        builder.WithOrigins("http://localhost:5173")          //Specify the allowed origin(s)      //tutaj zmienic adres z tego z apki javascript!!!!!!!!!!!!
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
+
+
 builder.Services.AddControllers();
 
 //builder.Services.AddScoped<IRepository<UserAccount>, UserLoginRepository>();
@@ -112,6 +124,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseCors("CorsPolicy");
 
 app.MapControllers();
 

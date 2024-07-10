@@ -2,6 +2,7 @@
 using DataAccess.DAL;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,7 +47,7 @@ namespace DataAccess.Repositories
         {
             using (var connection = _context.CreateConnection())
             {
-                var contacts = await connection.QueryAsync<Contact>("SELECT * FROM Contacts WHERE AdvisorId = @Id", new { Id = id });
+                var contacts = await connection.QueryAsync<Contact>("SELECT * FROM Contacts WHERE AdvisorId = @Id ORDER BY Id DESC", new { Id = id });
                 return contacts;
             }
         }
@@ -76,7 +77,8 @@ namespace DataAccess.Repositories
                 }
                 catch (Exception)                  
                 {
-                    throw new Exception("Błąd dodania nowego kontaktu. Klient lub doradca nie istnieje");
+                    //throw new ValidationException("Błąd dodania nowego kontaktu. Klient lub doradca nie istnieje");
+                    return 0;
                 }
 
             }
