@@ -52,7 +52,7 @@ namespace WebApi.Controllers
 
         // POST api/<ContactsController>
         [HttpPost("schedule-a-contact")]
-        public async Task<IActionResult> Add([FromBody] ContactToScheduleDto contactDto)
+        public async Task<IActionResult> Add([FromBody] NewContactToScheduleDto contactDto)
         {
 
             var createdContactId = await _contactsService.ScheduleContact(contactDto);
@@ -66,7 +66,7 @@ namespace WebApi.Controllers
             if (createdContactId == 0)
             {
                 _logger.LogError("Błąd dodania nowego kontaktu. Doradca lub klient nie istnieje");
-                return BadRequest();
+                return BadRequest();//zmienic na notfound
 
             }
             _logger.LogInformation($"Kontakt {contactDto.Description} został zaplanowany pod id {createdContactId}.");

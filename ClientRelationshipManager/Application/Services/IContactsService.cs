@@ -12,7 +12,7 @@ namespace Application.Services
     {
         Task<IEnumerable<Contact>?> GetAllContacts();
         Task<Contact?> GetContactById(int id);
-        Task<int?> ScheduleContact(ContactToScheduleDto contactDto);
+        Task<int?> ScheduleContact(NewContactToScheduleDto contactDto);
         Task<bool?> UpdateScheduledContact(int id, ContactScheduledToUpdateDto contactDto);
         Task<bool?> UpdateScheduledContactToCompleted(int id, ContactCompletedDto contactDto);
         Task<bool> DeleteContact(int id);

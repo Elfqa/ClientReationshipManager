@@ -24,7 +24,7 @@ namespace DataAccess.Repositories
         {
             using (var connection = _context.CreateConnection())
             {
-                var contacts = await connection.QueryAsync<Contact>("SELECT * FROM Contacts");
+                var contacts = await connection.QueryAsync<Contact>("SELECT * FROM Contacts ORDER BY Id DESC");
                 return contacts;
             }
         }
@@ -33,7 +33,7 @@ namespace DataAccess.Repositories
         {
             using (var connection = _context.CreateConnection())
             {
-                var contacts = await connection.QuerySingleOrDefaultAsync<Contact>("SELECT * FROM Contacts WHERE Id = @Id", new { Id = id });
+                var contacts = await connection.QuerySingleOrDefaultAsync<Contact>("SELECT * FROM Contacts WHERE Id = @Id ORDER BY Id DESC", new { Id = id });
                 return contacts;
             }
         }
@@ -50,7 +50,7 @@ namespace DataAccess.Repositories
         {
             using (var connection = _context.CreateConnection())
             {
-                var contacts = await connection.QueryAsync<Contact>("SELECT * FROM Contacts WHERE ClientId = @Id", new { Id = id });
+                var contacts = await connection.QueryAsync<Contact>("SELECT * FROM Contacts WHERE ClientId = @Id ORDER BY Id DESC", new { Id = id });
                 return contacts;
             }
         }
@@ -58,8 +58,8 @@ namespace DataAccess.Repositories
         public async Task<int> AddAsync(Contact entity)
         {
             var sql = "INSERT INTO Contacts (Description, CreationDate, LastUpdate, ScheduledDate, StartDate, EndDate, Status, AdvisorId, ClientId) " +
-                      "VALUES (@Description, @CreationDate, @LastUpdate, @ScheduledDate, @StartDate, @EndDate, @Status, @AdvisorId, @ClientId); " +
-                      "SELECT CAST(SCOPE_IDENTITY() as int)";
+                            "VALUES (@Description, @CreationDate, @LastUpdate, @ScheduledDate, @StartDate, @EndDate, @Status, @AdvisorId, @ClientId); " +
+                            "SELECT CAST(SCOPE_IDENTITY() as int)";
             
             using (var connection = _context.CreateConnection())
             {
@@ -72,7 +72,6 @@ namespace DataAccess.Repositories
                 }
                 catch (Exception)                  
                 {
-                    //throw new ValidationException("Błąd dodania nowego kontaktu. Klient lub doradca nie istnieje");
                     return 0;
                 }
 

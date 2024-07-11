@@ -18,9 +18,3 @@ public class ClientWithAdvisor
     public string AdvisorName { get; set; }
     
 }
-public class AdvisorInClientCard
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-
-}

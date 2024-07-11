@@ -5,11 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Application.DTOs;
 using BusinessLogic.Models;
 using DataAccess.Repositories;
-using WebApi.DTOs;
-
-
 
 namespace WebApi.Controllers
 {
@@ -18,7 +16,6 @@ namespace WebApi.Controllers
     public class LoginController : ControllerBase
     {
         private readonly IConfiguration _config;
-        //private readonly IRepository<UserAccount> _repository;//ten wzorzec nie ma sensu tutaj
         private readonly UserAccountRepository _repository;
 
         public LoginController(IConfiguration config , UserAccountRepository repository)

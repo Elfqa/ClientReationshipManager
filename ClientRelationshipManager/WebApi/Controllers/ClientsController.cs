@@ -1,8 +1,10 @@
-﻿using BusinessLogic.Models;
+﻿using Application.DTOs;
+using Application.Services;
+using BusinessLogic.Models;
 using DataAccess.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApi.DTOs;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,31 +15,29 @@ namespace WebApi.Controllers
     //[Authorize]
     public class ClientsController : ControllerBase
     {
-        private readonly IClientsRepository _repository;
+        private readonly IClientsService _clientsService;
         private readonly ILogger<ClientsController> _logger;
 
-
-        public ClientsController(IClientsRepository repository, ILogger<ClientsController> logger)
+        public ClientsController(IClientsService clientsService, ILogger<ClientsController> logger)
         {
-            _repository = repository;
+            _clientsService = clientsService;
             _logger = logger;
         }
 
-        // GET: api/<ClientsController>
+        // GET: api/Clients
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
-            var clients = await _repository.GetAllAsync();
-            _logger.LogInformation($"Pobrano listę klientów.");
+            var clients = await _clientsService.GetAllClientsAsync();
+            _logger.LogInformation("Pobrano listę klientów.");
             return Ok(clients);
         }
 
-
-        // GET: api/<ClientsController>
+        // GET: api/Clients/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
-            var client = await _repository.GetByIdAsync2(id);
+            var client = await _clientsService.GetClientByIdAsync(id);
             if (client == null)
             {
                 _logger.LogInformation($"Nie znaleziono klienta o id {id}");
@@ -51,34 +51,60 @@ namespace WebApi.Controllers
 
         // POST api/<ClientsController>
         [HttpPost]
-       public async Task<IActionResult> Add([FromBody] ClientDto clientDto)
+       public async Task<IActionResult> Add([FromBody] NewClientDto newClientDto)
         {
+            var createdClientId = await _clientsService.AddClientAsync(newClientDto);
 
-            var newClient = new Client()
+            if (createdClientId == 0)
             {
-                FirstName = clientDto.FirstName,
-                LastName = clientDto.LastName,
-                
-            };
-            
-            var createdClientId = await _repository.AddAsync(newClient);
-            _logger.LogInformation($"Klient został dodany do bazy danych.");
-
+                _logger.LogError("Błąd dodania nowego klienta.");
+                return BadRequest();
+            }
+           
+            _logger.LogInformation($"Klient {newClientDto.FirstName} {newClientDto.LastName} został dodany pod id {createdClientId}.");
             return Ok(createdClientId);
         }
 
 
-        // PUT api/<ClientsController>/5
+
+        // PUT: api/Clients/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> UpdateAsync(int id, [FromBody] ClientDto clientDto)
         {
+            var result = await _clientsService.UpdateClientAsync(id, clientDto);
+
+            if (result == null)
+            {
+                _logger.LogWarning($"Nie znaleziono klienta o id {id}");
+                return NotFound();
+            }
+
+            if (result == false)
+            {
+                _logger.LogWarning("Błąd aktualizacji klienta.");
+                return BadRequest();
+            }
+
+            _logger.LogInformation($"Klient o id {id} został zaktualizowany.");
+            return NoContent();
         }
 
-        // DELETE api/<ClientsController>/5
+
+        // DELETE: api/Clients/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
+            var result = await _clientsService.DeleteClientAsync(id);
+            if (!result)
+            {
+                _logger.LogInformation($"Nie znaleziono klienta o id {id}");
+                return NotFound();
+            }
+
+            _logger.LogInformation($"Klient o id {id} został usunięty.");
+            return Ok(result);
         }
+
 
 
     }

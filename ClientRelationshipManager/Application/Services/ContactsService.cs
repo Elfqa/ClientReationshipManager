@@ -37,7 +37,7 @@ namespace Application.Services
         }
 
 
-        public async Task<int?> ScheduleContact(ContactToScheduleDto contactDto)
+        public async Task<int?> ScheduleContact(NewContactToScheduleDto contactDto)
         {
             if (contactDto.ScheduledDate < DateTime.Now || contactDto.ScheduledDate == null)
             {
