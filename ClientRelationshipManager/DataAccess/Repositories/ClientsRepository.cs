@@ -9,7 +9,7 @@ using Dapper;
 
 namespace DataAccess.Repositories
 {
-    public class ClientsRepository : IRepository<Client>
+    public class ClientsRepository : IClientsRepository
     {
         private IDapperContext _context;
 
@@ -17,33 +17,47 @@ namespace DataAccess.Repositories
         {
             _context = context;
         }
-
-
-        public async Task<IEnumerable<Client>> GetAllAsync()
-        {
-            using (var connection = _context.CreateConnection())
-            {
-                var sql = "select c.Id, c.FirstName, c.LastName, a.Id, a.Name, a.Email " +
-                          "from clients c " +
-                          "left join ClientAdvisorRelationships ca on ca.ClientId=c.Id " +
-                          "left join Advisors a on a.Id=ca.AdvisorId";
-
-                var clients = await connection.QueryAsync<Client,UserAdvisor, Client>(sql, Map);    //splitOn: Id from Advisors
-                return clients;
-            }
-        }
-
-        public Task<Client> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
         private Client Map(Client client, UserAdvisor advisor)
         {
             if(advisor != null)
                 client.Advisor = advisor;
             return client;
         }
+
+        public async Task<IEnumerable<ClientWithAdvisor>> GetAllAsync()
+        {
+            using (var connection = _context.CreateConnection())
+            {
+                var sql = "select c.Id, c.FirstName, c.LastName, a.Id as AdvisorId, a.Name as AdvisorName " +
+                          "from clients c " +
+                          "left join ClientAdvisorRelationships ca on ca.ClientId=c.Id " +
+                          "left join Advisors a on a.Id=ca.AdvisorId";
+
+                var clients = await connection.QueryAsync<ClientWithAdvisor>(sql);    //splitOn: Id from Advisors
+                return clients;
+            }
+        }
+
+        //public async Task<IEnumerable<Client>> GetAllAsync()
+        //{
+        //    using (var connection = _context.CreateConnection())
+        //    {
+        //        var sql = "select c.Id, c.FirstName, c.LastName, a.Id, a.Name, a.Email " +
+        //                  "from clients c " +
+        //                  "left join ClientAdvisorRelationships ca on ca.ClientId=c.Id " +
+        //                  "left join Advisors a on a.Id=ca.AdvisorId";
+
+        //        var clients = await connection.QueryAsync<Client,UserAdvisor, Client>(sql, Map);    //splitOn: Id from Advisors
+        //        return clients;
+        //    }
+        //}
+
+        public Task<Client> GetByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+      
 
         public async Task<IEnumerable<Client>> GetByIdAsync2(int id)
         {
@@ -96,12 +110,6 @@ namespace DataAccess.Repositories
         }
         
 
-
-
-        public Task<IEnumerable<Client>> GetAllByClientIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
 
 
         public Task<bool> UpdateAsync(Client entity)

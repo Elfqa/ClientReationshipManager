@@ -10,14 +10,14 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class ClientsController : ControllerBase
     {
-        private readonly IRepository<Client> _repository;
+        private readonly IClientsRepository _repository;
         private readonly ILogger<ClientsController> _logger;
 
 
-        public ClientsController(IRepository<Client> repository, ILogger<ClientsController> logger)
+        public ClientsController(IClientsRepository repository, ILogger<ClientsController> logger)
         {
             _repository = repository;
             _logger = logger;

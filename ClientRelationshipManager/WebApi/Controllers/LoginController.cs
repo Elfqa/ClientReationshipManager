@@ -85,7 +85,7 @@ namespace WebApi.Controllers
                 _config["Jwt:Issuer"],
                 _config["Jwt:Audience"],
                 claims,
-                expires: DateTime.Now.AddDays(2),                                   //token expiry date
+                expires: DateTime.Now.AddDays(5),                                   //token expiry date
                 signingCredentials: credentials
             );
 

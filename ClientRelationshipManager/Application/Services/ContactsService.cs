@@ -13,10 +13,10 @@ namespace Application.Services
 {
     public class ContactsService : IContactsService
     {
-        private readonly IRepository<Contact> _repository;
+        private readonly IContactsRepository _repository;
         
 
-        public ContactsService(IRepository<Contact> repository)
+        public ContactsService(IContactsRepository repository)
         {
             _repository = repository;
             
@@ -64,12 +64,12 @@ namespace Application.Services
         {
 
             var contactToEdit = await _repository.GetByIdAsync(id);
-            if (contactToEdit == null)
+            if (contactToEdit == null || contactToEdit.Status == ContactStatus.Completed)
             {
                 return null;
             }
 
-            if (contactToEdit.Status == ContactStatus.Completed || contactDto.ScheduledDate < DateTime.Now || contactDto.ScheduledDate == null)
+            if (contactDto.ScheduledDate < DateTime.Now || contactDto.ScheduledDate == null)
             {
                 return false;
             }
@@ -96,7 +96,8 @@ namespace Application.Services
                 return null;
             }
 
-            if (contactToEdit.Status == ContactStatus.Completed || contactDto.StartDate >= contactDto.EndDate)
+            //if (contactToEdit.Status == ContactStatus.Completed || contactDto.StartDate >= contactDto.EndDate || contactDto.StartDate >= DateTime.Now)
+            if (contactDto.StartDate >= contactDto.EndDate || contactDto.EndDate >= DateTime.Now)//allow to edit completed and scheduled contact
             {
                 return false;
             }

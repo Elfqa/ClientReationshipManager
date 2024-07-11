@@ -97,8 +97,9 @@ builder.Services.AddControllers();
 
 //builder.Services.AddScoped<IRepository<UserAccount>, UserLoginRepository>();
 
-builder.Services.AddScoped<IRepository<Contact>, ContactsRepository>();
-builder.Services.AddScoped<IRepository<Client>, ClientsRepository>();
+/*builder.Services.AddScoped<IRepository<Contact>, ContactsRepository>();*/
+builder.Services.AddScoped<IContactsRepository, ContactsRepository>();
+builder.Services.AddScoped<IClientsRepository, ClientsRepository>();
 builder.Services.AddScoped<IContactsService, ContactsService>();
 
 builder.Services.AddScoped<UserAccountRepository>();

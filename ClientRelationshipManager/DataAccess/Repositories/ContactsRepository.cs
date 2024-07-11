@@ -10,7 +10,7 @@ using Dapper;
 
 namespace DataAccess.Repositories
 {
-    public class ContactsRepository : IRepository<Contact>
+    public class ContactsRepository : IContactsRepository
     {
         private IDapperContext _context;
 
@@ -36,11 +36,6 @@ namespace DataAccess.Repositories
                 var contacts = await connection.QuerySingleOrDefaultAsync<Contact>("SELECT * FROM Contacts WHERE Id = @Id", new { Id = id });
                 return contacts;
             }
-        }
-
-        public Task<IEnumerable<Contact>> GetByIdAsync2(int id)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<IEnumerable<Contact>> GetAllByAdvisorIdAsync(int id)
