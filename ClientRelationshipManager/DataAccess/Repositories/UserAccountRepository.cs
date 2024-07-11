@@ -4,7 +4,7 @@ using DataAccess.DAL;
 
 namespace DataAccess.Repositories;
 
-public class UserAccountRepository 
+public class UserAccountRepository : IUserAccountRepository
 {
     private IDapperContext _context;
 
@@ -22,4 +22,13 @@ public class UserAccountRepository
         }
     }
 
+    public async Task<UserAccount?> Authenticate(string name, string password)
+    {
+        using (var connection = _context.CreateConnection())
+        {
+            var sql = "SELECT Id, Name, Email FROM Advisors WHERE Name = @Name AND Password = @Password";
+            var user = await connection.QuerySingleOrDefaultAsync<UserAccount>(sql, new { name, password });
+            return user;
+        }
+    }
 }

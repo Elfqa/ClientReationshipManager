@@ -9,6 +9,7 @@ using BusinessLogic.Models;
 using DataAccess.DAL;
 using DataAccess.Repositories;
 using Microsoft.OpenApi.Models;
+using WebApi.Auth;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +25,7 @@ builder.Services.AddEndpointsApiExplorer();
 //TODO dodatkowa konfiguracja SWAGGER dla JWS
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "CRM API", Version = "v1" });
 
     // Konfiguracja Swaggera do u¿ywania tokenów Bearer
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -100,8 +101,9 @@ builder.Services.AddScoped<IClientsRepository, ClientsRepository>();
 builder.Services.AddScoped<IContactsService, ContactsService>();
 builder.Services.AddScoped<IClientsService, ClientsService>();
 
-builder.Services.AddScoped<UserAccountRepository>();
-
+builder.Services.AddScoped<IUserAccountRepository,UserAccountRepository>();
+builder.Services.AddScoped<IUserAccountService, UserAccountService>();
+builder.Services.AddScoped<JwtTokenService>();
 
 
 var app = builder.Build();
