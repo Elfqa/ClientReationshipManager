@@ -95,9 +95,7 @@ namespace Application.Services
             {
                 return null;
             }
-
-            //if (contactToEdit.Status == ContactStatus.Completed || contactDto.StartDate >= contactDto.EndDate || contactDto.StartDate >= DateTime.Now)
-            if (contactDto.StartDate >= contactDto.EndDate || contactDto.EndDate >= DateTime.Now)//allow to edit completed and scheduled contact
+            if (contactDto.StartDate >= contactDto.EndDate || contactDto.EndDate >= DateTime.Now)//allow to edit both: completed and scheduled contact
             {
                 return false;
             }
@@ -141,8 +139,4 @@ namespace Application.Services
 
        
     }
-
-
-
-
 }

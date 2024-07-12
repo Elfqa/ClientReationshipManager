@@ -18,8 +18,7 @@ namespace DataAccess.Repositories
         {
             _context = context;
         }
-       
-
+        
         public async Task<IEnumerable<ClientWithAdvisor>> GetAllAsync()
         {
             using (var connection = _context.CreateConnection())
@@ -122,12 +121,10 @@ namespace DataAccess.Repositories
                 }
                 catch (Exception)
                 {
-                    //throw new ValidationException("Błąd dodania nowego kontaktu. Klient lub doradca nie istnieje");
                     return false;
                 }
             }
         }
-
 
         public async Task<bool> DeleteAsync(int id)
         {
@@ -141,9 +138,7 @@ namespace DataAccess.Repositories
             }
         }
 
-
-
-        /*
+        /* additional functions never used
          * getClients with Advisor model
          
         private Client Map(Client client, UserAdvisor advisor)

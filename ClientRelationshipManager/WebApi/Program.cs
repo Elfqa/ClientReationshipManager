@@ -1,11 +1,8 @@
 using Serilog;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Application.Services;
-using BusinessLogic.Models;
 using DataAccess.DAL;
 using DataAccess.Repositories;
 using Microsoft.OpenApi.Models;
@@ -14,20 +11,11 @@ using WebApi.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
-//TODO: SWAGGER---konfiguracja, cd na koncu
-
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();-->zmieniona konfiguracja pod JWS
 
-
-//TODO dodatkowa konfiguracja SWAGGER dla JWS
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "CRM API", Version = "v1" });
-
-    // Konfiguracja Swaggera do u¿ywania tokenów Bearer
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -51,11 +39,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 
-//TODO: konfiguracja SeriLog
 builder.Host.UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
 
-
-//TODO konfiguracja JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => 
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -70,11 +55,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-//dodajemy dla komunikacji api z javascriptem
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
-        builder.WithOrigins("http://localhost:5173")          //Specify the allowed origin(s)      //tutaj zmienic adres z tego z apki javascript!!!!!!!!!!!!
+        builder.WithOrigins("http://localhost:5173")          //Specify the allowed origin(s)
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -82,9 +66,6 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddControllers();
-
-
-
 builder.Services.AddSingleton<IDapperContext, DapperContext>();
 
 builder.Services.AddScoped<IContactsRepository, ContactsRepository>();
@@ -100,10 +81,6 @@ builder.Services.AddSingleton<JwtTokenService>();
 var app = builder.Build();
 
 
-
-
-//todo: konfiguracja SWAGGER cd.
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())    
 {
     app.UseSwagger();

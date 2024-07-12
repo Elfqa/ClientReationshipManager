@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Application.Services;
 using Application.DTOs;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
@@ -70,7 +68,6 @@ namespace WebApi.Controllers
 
             }
             _logger.LogInformation($"Kontakt {contactDto.Description} został zaplanowany pod id {createdContactId}.");
-            //return CreatedAtAction(nameof(GetContactById), new { id = createdContactId }, contactDto);//w resopne wyswietla nam utworzony objekt DTO i ścieżka z nowym id
             return Ok(createdContactId);
         }
 
@@ -158,14 +155,6 @@ namespace WebApi.Controllers
             _logger.LogInformation($"Pobrano kontakty.");
             return Ok(contacts);
         }
-
-
-
-
-        
-
-
-
 
     }
 

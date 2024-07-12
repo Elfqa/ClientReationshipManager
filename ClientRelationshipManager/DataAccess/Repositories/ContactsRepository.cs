@@ -19,7 +19,6 @@ namespace DataAccess.Repositories
             _context = context;
         }
 
-
         public async Task<IEnumerable<Contact>> GetAllAsync()
         {
             using (var connection = _context.CreateConnection())
@@ -78,10 +77,9 @@ namespace DataAccess.Repositories
             }
         }
 
-
         public async Task<bool> UpdateAsync(Contact entity)
         {
-            //without the AdvisorId and ClinetID parameters because they are not editable
+            //Update func without the AdvisorId and ClinetID parameters because they are not editable
 
             var sql = new StringBuilder("UPDATE Contacts SET LastUpdate = @LastUpdate, Status = @Status ");
 
