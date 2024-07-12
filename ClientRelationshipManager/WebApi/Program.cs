@@ -17,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 //TODO: SWAGGER---konfiguracja, cd na koncu
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();-->zmieniona konfiguracja pod JWS
 
@@ -51,18 +51,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 
-
-
-//TODO: rejestracja dla DapperContext
-
-builder.Services.AddSingleton<IDapperContext, DapperContext>();
-
-
-
 //TODO: konfiguracja SeriLog
 builder.Host.UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
-//poza tym dodajemy konfiguracje  w appsettings.json
-
 
 
 //TODO konfiguracja JWT
@@ -79,9 +69,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
-//builder.Services.AddAuthorization();
-
-
 
 //dodajemy dla komunikacji api z javascriptem
 builder.Services.AddCors(options =>
@@ -96,6 +83,10 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 
+
+
+builder.Services.AddSingleton<IDapperContext, DapperContext>();
+
 builder.Services.AddScoped<IContactsRepository, ContactsRepository>();
 builder.Services.AddScoped<IClientsRepository, ClientsRepository>();
 builder.Services.AddScoped<IContactsService, ContactsService>();
@@ -103,7 +94,7 @@ builder.Services.AddScoped<IClientsService, ClientsService>();
 
 builder.Services.AddScoped<IUserAccountRepository,UserAccountRepository>();
 builder.Services.AddScoped<IUserAccountService, UserAccountService>();
-builder.Services.AddScoped<JwtTokenService>();
+builder.Services.AddSingleton<JwtTokenService>();
 
 
 var app = builder.Build();

@@ -38,13 +38,27 @@ namespace WebApi.Controllers
             if (client == null)
             {
                 _logger.LogInformation($"Nie znaleziono klienta o id {id}");
+                //return NotFound(new List<ClientWithAdvisor>());
                 return NotFound();
             }
             _logger.LogInformation($"Pobrano klienta o id {id}.");
+            //return Ok(new List<ClientWithAdvisor> { client });
             return Ok(client);
         }
 
 
+        [HttpGet("AdvisorId")]
+        public async Task<IActionResult> GetAllByAdvisorIdAsync(int id)
+        {
+            var clients = await _clientsService.GetAllClientsByAdvisorIdAsync(id);
+            if (clients == null)
+            {
+                _logger.LogInformation($"Nie znaleziono klientów dla doradcy o id {id}");
+                return NotFound();
+            }
+            _logger.LogInformation($"Pobrano klientów.");
+            return Ok(clients);
+        }
 
         // POST api/<ClientsController>
         [HttpPost]

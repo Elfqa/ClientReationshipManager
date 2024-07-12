@@ -28,6 +28,13 @@ namespace Application.Services
             return client;
         }
 
+        public async Task<IEnumerable<ClientWithAdvisor>?> GetAllClientsByAdvisorIdAsync(int id)
+        {
+            var clients = await _repository.GetAllByAdvisorIdAsync(id);
+            return clients;
+        }
+
+
         public async Task<int?> AddClientAsync(NewClientDto newClientDto)
         {
             var newClient = new ClientWithAdvisor()

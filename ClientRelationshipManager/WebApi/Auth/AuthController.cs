@@ -27,7 +27,12 @@ namespace WebApi.Auth
                 return BadRequest("Podano błędny login lub hasło");
 
             var token = _jwtTokenService.GenerateJwtToken(user);
-            return Ok(token);
+            //return Ok(token);
+            return Ok(new
+            {
+                User = user, 
+                Token = token
+            });
         }
 
     }
