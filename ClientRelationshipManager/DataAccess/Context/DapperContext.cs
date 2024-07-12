@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace DataAccess.DAL
 {
-    public class DapperContext : IDapperContext //dodajemy dziedziczenie po interfejsie
+    public class DapperContext : IDapperContext
     {
         private readonly IConfiguration _configuration;
         public DapperContext(IConfiguration configuration)

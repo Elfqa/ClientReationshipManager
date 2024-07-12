@@ -12,6 +12,5 @@ public class Contact
     public ContactStatus Status { get; set; }
     public int AdvisorId { get; set; }
     public int ClientId { get; set; }
-    //public UserAdvisor Advisor { get; set; }
-    //public Client Client { get; set; }
+   
 }

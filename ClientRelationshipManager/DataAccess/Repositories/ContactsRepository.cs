@@ -2,6 +2,7 @@
 using DataAccess.DAL;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using Dapper;
 
 namespace DataAccess.Repositories
 {
-    public class ContactsRepository : IRepository<Contact>
+    public class ContactsRepository : IContactsRepository
     {
         private IDapperContext _context;
 
@@ -18,12 +19,11 @@ namespace DataAccess.Repositories
             _context = context;
         }
 
-
         public async Task<IEnumerable<Contact>> GetAllAsync()
         {
             using (var connection = _context.CreateConnection())
             {
-                var contacts = await connection.QueryAsync<Contact>("SELECT * FROM Contacts");
+                var contacts = await connection.QueryAsync<Contact>("SELECT * FROM Contacts ORDER BY Id DESC");
                 return contacts;
             }
         }
@@ -32,21 +32,16 @@ namespace DataAccess.Repositories
         {
             using (var connection = _context.CreateConnection())
             {
-                var contacts = await connection.QuerySingleOrDefaultAsync<Contact>("SELECT * FROM Contacts WHERE Id = @Id", new { Id = id });
+                var contacts = await connection.QuerySingleOrDefaultAsync<Contact>("SELECT * FROM Contacts WHERE Id = @Id ORDER BY Id DESC", new { Id = id });
                 return contacts;
             }
-        }
-
-        public Task<IEnumerable<Contact>> GetByIdAsync2(int id)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<IEnumerable<Contact>> GetAllByAdvisorIdAsync(int id)
         {
             using (var connection = _context.CreateConnection())
             {
-                var contacts = await connection.QueryAsync<Contact>("SELECT * FROM Contacts WHERE AdvisorId = @Id", new { Id = id });
+                var contacts = await connection.QueryAsync<Contact>("SELECT * FROM Contacts WHERE AdvisorId = @Id ORDER BY Id DESC", new { Id = id });
                 return contacts;
             }
         }
@@ -54,20 +49,16 @@ namespace DataAccess.Repositories
         {
             using (var connection = _context.CreateConnection())
             {
-                var contacts = await connection.QueryAsync<Contact>("SELECT * FROM Contacts WHERE ClientId = @Id", new { Id = id });
+                var contacts = await connection.QueryAsync<Contact>("SELECT * FROM Contacts WHERE ClientId = @Id ORDER BY Id DESC", new { Id = id });
                 return contacts;
             }
         }
 
-
-
-
-        //--------------------------
         public async Task<int> AddAsync(Contact entity)
         {
             var sql = "INSERT INTO Contacts (Description, CreationDate, LastUpdate, ScheduledDate, StartDate, EndDate, Status, AdvisorId, ClientId) " +
-                      "VALUES (@Description, @CreationDate, @LastUpdate, @ScheduledDate, @StartDate, @EndDate, @Status, @AdvisorId, @ClientId); " +
-                      "SELECT CAST(SCOPE_IDENTITY() as int)";
+                            "VALUES (@Description, @CreationDate, @LastUpdate, @ScheduledDate, @StartDate, @EndDate, @Status, @AdvisorId, @ClientId); " +
+                            "SELECT CAST(SCOPE_IDENTITY() as int)";
             
             using (var connection = _context.CreateConnection())
             {
@@ -80,37 +71,23 @@ namespace DataAccess.Repositories
                 }
                 catch (Exception)                  
                 {
-                    throw new Exception("Błąd dodania nowego kontaktu");
+                    return 0;
                 }
 
             }
         }
 
-        // public string Description { get; set; }
-
-        // public DateTime LastUpdate { get; set; }
-        // public DateTime? ScheduledDate { get; set; }
-        // public DateTime? StartDate { get; set; }
-        // public DateTime? EndDate { get; set; }
-        // public ContactStatus Status { get; set; }
-
-
         public async Task<bool> UpdateAsync(Contact entity)
         {
-            //without the AdvisorId and ClinetID parameters because they are not editable
+            //Update func without the AdvisorId and ClinetID parameters because they are not editable
 
             var sql = new StringBuilder("UPDATE Contacts SET LastUpdate = @LastUpdate, Status = @Status ");
 
-            //var parameters = new DynamicParameters();
-            // parameters.Add("@Id", entity.Id);;
-
-
+            //Description,ScheduledDate,StartDate,EndDate will not be edited if they are passed empty from the model
             if (!string.IsNullOrWhiteSpace(entity.Description))
             {
                 sql.Append(", Description = @Description ");
-                //parameters.Add("@Description", entity.Description);
             }
-
             if (entity.ScheduledDate != null)
             {
                 sql.Append(", ScheduledDate = @ScheduledDate ");
@@ -126,29 +103,13 @@ namespace DataAccess.Repositories
 
             sql.Append("WHERE Id = @Id");
 
-            
+            //I put the entire entity object into the parameters, even if it has some empty properties, because it is secured in the SQL UPDATE clause
             using (var connection = _context.CreateConnection())
             {
-                var affectedRows = await connection.ExecuteAsync(sql.ToString(), entity);//do parametrów podstawiamy caly obiekt entity nawet jesli ma puste niektore wlasciwosci
+                var affectedRows = await connection.ExecuteAsync(sql.ToString(), entity);
                 return affectedRows > 0;
             }
         }
-
-
-        //public async Task<bool> UpdateAsync(Contact entity)
-        //{
-        //    var sql = "UPDATE Contacts SET Description = @Description, LastUpdate = @LastUpdate, " +
-        //              "StartDate = @StartDate, EndDate = @EndDate, Status = @Status " +
-        //              "WHERE Id = @Id";
-
-        //    using (var connection = _context.CreateConnection())
-        //    {
-        //        var affectedRows = await connection.ExecuteAsync(sql, entity);
-        //        return affectedRows > 0;
-        //    }
-        //}
-
-
 
         public async Task<bool> DeleteAsync(int id)
         {

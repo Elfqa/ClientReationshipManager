@@ -1,4 +1,4 @@
-﻿namespace WebApi.DTOs;
+﻿namespace Application.DTOs;
 
 public class ClientDto
 {

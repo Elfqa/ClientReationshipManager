@@ -1,7 +1,7 @@
 ﻿using BusinessLogic.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace WebApi.DTOs
+namespace Application.DTOs
 {
     public class UserDto
     {

@@ -6,10 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.VisualBasic;
 
 namespace DataAccess.Repositories
 {
-    public class ClientsRepository : IRepository<Client>
+    public class ClientsRepository : IClientsRepository
     {
         private IDapperContext _context;
 
@@ -17,56 +18,57 @@ namespace DataAccess.Repositories
         {
             _context = context;
         }
-
-
-        public async Task<IEnumerable<Client>> GetAllAsync()
+        
+        public async Task<IEnumerable<ClientWithAdvisor>> GetAllAsync()
         {
             using (var connection = _context.CreateConnection())
             {
-                var sql = "select c.Id, c.FirstName, c.LastName, a.Id, a.Name, a.Email " +
+                var sql = "select c.Id, c.FirstName, c.LastName, a.Id as AdvisorId, a.Name as AdvisorName " +
                           "from clients c " +
                           "left join ClientAdvisorRelationships ca on ca.ClientId=c.Id " +
-                          "left join Advisors a on a.Id=ca.AdvisorId ";
+                          "left join Advisors a on a.Id=ca.AdvisorId";
 
-                var clients = await connection.QueryAsync<Client,UserAdvisor, Client>(sql, Map);    //splitOn: Id from Advisors
+                var clients = await connection.QueryAsync<ClientWithAdvisor>(sql);  
                 return clients;
             }
         }
 
-        public Task<Client> GetByIdAsync(int id)
+        public async Task<ClientWithAdvisor> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
-        }
+            var sql = "select c.Id, c.FirstName, c.LastName, a.Id as AdvisorId, a.Name as AdvisorName " +
+                      "from clients c " +
+                      "left join ClientAdvisorRelationships ca on ca.ClientId=c.Id " +
+                      "left join Advisors a on a.Id=ca.AdvisorId " +
+                      "WHERE c.Id = @Id";
 
-        private Client Map(Client client, UserAdvisor advisor)
-        {
-            if(advisor != null)
-                client.Advisor = advisor;
-            return client;
-        }
-
-        public async Task<IEnumerable<Client>> GetByIdAsync2(int id)
-        {
             using (var connection = _context.CreateConnection())
             {
-                var sql = "select c.Id, c.FirstName, c.LastName, a.Id, a.Name, a.Email " +
-                          "from clients c " +
-                          "left join ClientAdvisorRelationships ca on ca.ClientId=c.Id " +
-                          "left join Advisors a on a.Id=ca.AdvisorId " +
-                          "WHERE c.Id = @Id";
-
-                var clients = await connection.QueryAsync<Client, UserAdvisor, Client>(sql, Map, new { Id = id });    //splitOn: Id from Advisors
-                return clients;
+                var client = await connection.QuerySingleOrDefaultAsync<ClientWithAdvisor>(sql, new { Id = id });
+                return client;
             }
         }
 
+        public async Task<IEnumerable<ClientWithAdvisor>> GetAllByAdvisorIdAsync(int id)
+        {
+            var sql = "select c.Id, c.FirstName, c.LastName, a.Id as AdvisorId, a.Name as AdvisorName " +
+                      "from clients c " +
+                      "left join ClientAdvisorRelationships ca on ca.ClientId=c.Id " +
+                      "left join Advisors a on a.Id=ca.AdvisorId " +
+                      "WHERE ca.AdvisorId = @Id";
 
-        public async Task<int> AddAsync(Client entity)
+            using (var connection = _context.CreateConnection())
+            {
+                var contacts = await connection.QueryAsync<ClientWithAdvisor>(sql, new { Id = id });
+                return contacts;
+            }
+        }
+
+        public async Task<int> AddAsync(ClientWithAdvisor entity)
         {
             var sql = "INSERT INTO Clients (FirstName, LastName) VALUES (@FirstName, @LastName); " +
                       "SELECT CAST(SCOPE_IDENTITY() as int); " +
                       "INSERT INTO ClientAdvisorRelationships (AdvisorId, ClientId, LastUpdate) " +
-                      "VALUES (5, (SELECT MAX(Id) FROM Clients), GETDATE()); ";
+                      "VALUES (@AdvisorId, (SELECT MAX(Id) FROM Clients), GETDATE()); ";
 
             using (var connection = _context.CreateConnection())
             {
@@ -79,44 +81,102 @@ namespace DataAccess.Repositories
                 }
                 catch (Exception)
                 {
-                    throw new Exception("Błąd dodania nowego klienta");
+                    return 0;
                 }
 
             }
         }
 
-
-        public async Task<IEnumerable<Client>> GetAllByAdvisorIdAsync(int id)
+        public async Task<bool> UpdateAsync(ClientWithAdvisor entity)
         {
+           
+            if (string.IsNullOrWhiteSpace(entity.FirstName) && string.IsNullOrWhiteSpace(entity.LastName) && entity.AdvisorId == null)
+            {
+                return false;
+            }
+
+            var sql = new StringBuilder();
+
+            if (!string.IsNullOrWhiteSpace(entity.FirstName))
+            {
+                sql.Append("UPDATE Clients SET FirstName = @FirstName WHERE Id = @Id; ");
+            }
+            if (!string.IsNullOrWhiteSpace(entity.LastName))
+            {
+                sql.Append("UPDATE Clients SET LastName = @LastName WHERE Id = @Id; ");
+            }
+            if (entity.AdvisorId != null )
+            {
+                sql.Append("UPDATE ClientAdvisorRelationships SET AdvisorId = @AdvisorId, LastUpdate=GETDATE() WHERE ClientId = @Id ");
+            }
+
             using (var connection = _context.CreateConnection())
             {
-                var contacts = await connection.QueryAsync<Client>("SELECT * FROM Contacts WHERE AdvisorId = @Id", new { Id = id });
-                return contacts;
+                
+                //an exception may appear when trying to update a contact to a non-existent advisor
+                try
+                {
+                    var affectedRows = await connection.ExecuteAsync(sql.ToString(), entity);
+                    return affectedRows > 0;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
             }
         }
-        
-
-
-
-        public Task<IEnumerable<Client>> GetAllByClientIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public Task<bool> UpdateAsync(Client entity)
-        {
-            throw new NotImplementedException();
-        }
-
 
         public async Task<bool> DeleteAsync(int id)
         {
             using (var connection = _context.CreateConnection())
             {
-                var affectedRows = await connection.ExecuteAsync("DELETE FROM Clients WHERE Id = @Id", new { Id = id });
+                var sql = "DELETE FROM ClientAdvisorRelationships WHERE ClientId = @Id " +
+                                "DELETE FROM Clients WHERE Id = @Id";
+
+                var affectedRows = await connection.ExecuteAsync(sql, new { Id = id });
                 return affectedRows > 0;
             }
         }
+
+        /* additional functions never used
+         * getClients with Advisor model
+         
+        private Client Map(Client client, UserAdvisor advisor)
+           {
+               if(advisor != null)
+                   client.Advisor = advisor;
+               return client;
+           }
+
+        public async Task<IEnumerable<Client>> GetAllAsync()
+           {
+               using (var connection = _context.CreateConnection())
+               {
+                   var sql = "select c.Id, c.FirstName, c.LastName, a.Id, a.Name, a.Email " +
+                             "from clients c " +
+                             "left join ClientAdvisorRelationships ca on ca.ClientId=c.Id " +
+                             "left join Advisors a on a.Id=ca.AdvisorId";
+
+                   var clients = await connection.QueryAsync<Client, UserAdvisor, Client>(sql, Map);    //splitOn: Id from Advisors
+                   return clients;
+               }
+           }
+
+
+           public async Task<IEnumerable<Client>> GetByIdAsync(int id)
+           {
+               using (var connection = _context.CreateConnection())
+               {
+                   var sql = "select c.Id, c.FirstName, c.LastName, a.Id, a.Name, a.Email " +
+                             "from clients c " +
+                             "left join ClientAdvisorRelationships ca on ca.ClientId=c.Id " +
+                             "left join Advisors a on a.Id=ca.AdvisorId " +
+                             "WHERE c.Id = @Id";
+
+                   var clients = await connection.QueryAsync<Client, UserAdvisor, Client>(sql, Map, new { Id = id });    //splitOn: Id from Advisors
+                   return clients;
+               }
+           }
+         */
     }
 }
