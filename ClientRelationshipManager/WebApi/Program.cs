@@ -7,7 +7,8 @@ using DataAccess.DAL;
 using DataAccess.Repositories;
 using Microsoft.OpenApi.Models;
 using WebApi.Auth;
-
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 

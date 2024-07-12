@@ -64,7 +64,7 @@ namespace WebApi.Controllers
             if (createdContactId == 0)
             {
                 _logger.LogError("Błąd dodania nowego kontaktu. Doradca lub klient nie istnieje");
-                return BadRequest();//zmienic na notfound
+                return BadRequest();
 
             }
             _logger.LogInformation($"Kontakt {contactDto.Description} został zaplanowany pod id {createdContactId}.");
