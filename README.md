@@ -1,6 +1,6 @@
 # ClientRelationshipManager
 
-ClientRelationshipManager is a mini CRM application designed for bank Advisor to manage customer relationships efficiently. It is built using ASP.NET WebAPI for the backend and React for the frontend, and it utilizes MS SQL Server as the database. The project code is divided into backend ([ClientReationshipManager](https://github.com/Elfqa/ClientReationshipManager)) and frontend ([CRMapp](https://github.com/Elfqa/CRMapp)) parts.
+ClientRelationshipManager is a mini CRM application designed for bank Advisors to manage Clients relationships efficiently. It is built using ASP.NET WebAPI for the backend and React for the frontend, and it utilizes MS SQL Server as the database. The project code is divided into backend ([ClientReationshipManager](https://github.com/Elfqa/ClientReationshipManager)) and frontend ([CRMapp](https://github.com/Elfqa/CRMapp)) parts.
 
 ## Description
 
